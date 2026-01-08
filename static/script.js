@@ -11,6 +11,10 @@ function detectKeyPress(letter, callback) {
 function handleKeyPress(letter) {
     console.log(`Lettera premuta: ${letter}`);
     // Aggiungi qui la logica personalizzata per ogni lettera
+    const button = document.querySelector(`button[value = "${letter.toLowerCase()}"]`);
+    if ( button ){
+        button.click();
+    }
 }
 
 // Funzione alternativa: detectare tutte le lettere dalla tastiera
@@ -40,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     detectKeyPress('a', handleKeyPress);
     detectKeyPress('s', handleKeyPress);
     detectKeyPress('d', handleKeyPress);
+    detectKeyPress(' ', handleKeyPress);
 
     // Opzione 2: Detectare tutte le lettere (decommentare se preferito)
     // detectAllKeyPresses();

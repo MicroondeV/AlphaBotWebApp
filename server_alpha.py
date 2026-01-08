@@ -3,15 +3,26 @@ import AlphaBot
 import threading
 import time
 import sqlite3
-from flask import Flask, render_template, request
+from flask import Flask, render_template,redirect, url_for, request
+from flask_login import (
+    LoginManager, UserMixin,
+    login_user, login_required,
+    logout_user, current_user
+)
 
 
 #Address di connesione al robot
 app = Flask(__name__)
+app.secret_key = "DiddyEpstein69"
 
-#Connessione al database
-conn = sqlite3.connect('../db/db_controllo_alfabot.db')
-cur = conn.cursor()
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+
 
 class DataCatcher(threading.Thread):
     def __init__(self, robot):
@@ -82,6 +93,8 @@ speeds = {
 
 
 def web_server():
+    conn = sqlite3.connect('../db/db_controllo_alfabot.db')
+    cur = conn.cursor()
     ctrl.setSpeed(ctrl.letter)
     if ctrl.letter== "s":
         dataCatch.enable = False
@@ -91,11 +104,27 @@ def web_server():
     cur.execute(f"SELECT function FROM controlli WHERE control_char = '{ctrl.letter}'")
     command = cur.fetchall()[0][0]
     movemnts[command]()
-            
+    conn.close()
 
-    dataCatch.stop()
-    dataCatch.join()
-    
+# @login_manager.user_loader
+# def load_user(user_id):
+#     if user_id in USERS:
+#         return User(user_id)
+#     return None
+
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    conn = sqlite3.connect('../db/users.db')
+    cur = conn.cursor()
+    if request.method == 'POST':
+        pswd = request.form.get("password")
+        username = request.form.get("nome")
+        cur.execute(f"SELECT users.username, users.password FROM users WHERE users.username = {username}")
+        data = cur.fetchall()
+        print(data)
+    conn.close()
+    return render_template('login.html')
+
 @app.route("/", methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -103,8 +132,7 @@ def index():
         ctrl.letter = request.form.get('lettera')
         print(f"Lettera ricevuta: {ctrl.letter}")
         web_server()
-    elif request.method == 'GET':
-        return render_template('index.html')
+    return render_template('index.html')
     
 app.run(host="0.0.0.0", port = "6767", debug=False)
 
