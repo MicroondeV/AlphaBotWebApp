@@ -33,7 +33,6 @@ class AlphaBot(object):
 	def forward(self):
 		self.setPWMB(50)
 		self.setPWMA(50)
-		print("Avanti")
 		GPIO.output(self.IN1,GPIO.HIGH)
 		GPIO.output(self.IN2,GPIO.LOW)
 		GPIO.output(self.IN3,GPIO.LOW)
@@ -42,7 +41,6 @@ class AlphaBot(object):
 	def stop(self):
 		self.setPWMB(50)
 		self.setPWMA(50)
-		print("Stop")
 		GPIO.output(self.IN1,GPIO.LOW)
 		GPIO.output(self.IN2,GPIO.LOW)
 		GPIO.output(self.IN3,GPIO.LOW)
@@ -51,7 +49,6 @@ class AlphaBot(object):
 	def backward(self):
 		self.setPWMB(50)
 		self.setPWMA(50)
-		print("Indietro")
 		GPIO.output(self.IN1,GPIO.LOW)
 		GPIO.output(self.IN2,GPIO.HIGH)
 		GPIO.output(self.IN3,GPIO.HIGH)
@@ -60,7 +57,6 @@ class AlphaBot(object):
 	def left(self):
 		self.setPWMB(50)
 		self.setPWMA(50)
-		print("Sinistra")
 		GPIO.output(self.IN1,GPIO.LOW)
 		GPIO.output(self.IN2,GPIO.LOW)
 		GPIO.output(self.IN3,GPIO.LOW)
@@ -69,7 +65,6 @@ class AlphaBot(object):
 	def right(self):
 		self.setPWMB(50)
 		self.setPWMA(50)
-		print("Destra")
 		GPIO.output(self.IN1,GPIO.HIGH)
 		GPIO.output(self.IN2,GPIO.LOW)
 		GPIO.output(self.IN3,GPIO.LOW)

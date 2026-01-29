@@ -13,7 +13,7 @@ from flask_login import (
 
 #Address di connesione al robot
 app = Flask(__name__)
-app.secret_key = "DiddyEpstein69"
+app.secret_key = "pswd"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -22,7 +22,6 @@ login_manager.login_view = "login"
 class User(UserMixin):
     def __init__(self, id):
         self.id = id
-
 
 class DataCatcher(threading.Thread):
     def __init__(self, robot):
@@ -106,34 +105,51 @@ def web_server():
     movemnts[command]()
     conn.close()
 
-# @login_manager.user_loader
-# def load_user(user_id):
-#     if user_id in USERS:
-#         return User(user_id)
-#     return None
+@login_manager.user_loader
+def load_user(user_id):
+    conn = sqlite3.connect('../db/users.db')
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM users WHERE id = ?', (user_id,))
+    row = cur.fetchone()
+    conn.close()
+    if row:
+        return User(str(user_id))
+    return None
 
 @app.route("/login", methods=['GET', 'POST'])
+@app.route("/", methods=['GET', 'POST'])
 def login():
     conn = sqlite3.connect('../db/users.db')
     cur = conn.cursor()
     if request.method == 'POST':
         pswd = request.form.get("password")
         username = request.form.get("nome")
-        cur.execute(f"SELECT users.username, users.password FROM users WHERE users.username = {username}")
+        cur.execute(f'SELECT * FROM users WHERE users.username = "{username}" AND users.password = "{pswd}"')
         data = cur.fetchall()
-        print(data)
-    conn.close()
+        # print(data)
+        if len(data) != 0:
+            user_id = data[0][0]
+            conn.close()
+            login_user(User(str(user_id)))
+            return redirect(url_for("control"))
     return render_template('login.html')
 
-@app.route("/", methods=['GET', 'POST'])
-def index():
+@app.route("/control", methods=['GET', 'POST'])
+@login_required
+def control():
+    print("entrato")
     if request.method == 'POST':
         # Prendi i valori dal form
         ctrl.letter = request.form.get('lettera')
         print(f"Lettera ricevuta: {ctrl.letter}")
         web_server()
     return render_template('index.html')
-    
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("login"))
 app.run(host="0.0.0.0", port = "6767", debug=False)
 
 Ab.stop()
